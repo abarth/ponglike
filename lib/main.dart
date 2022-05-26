@@ -6,7 +6,7 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -34,11 +34,7 @@ class _PongPageState extends State<PongPage> {
         title: const Text("Pong!"),
       ),
       body: const Center(
-        child: SizedBox(
-          width: 400.0,
-          height: 400.0,
-          child: PongView(),
-        ),
+        child: PongView(),
       ),
     );
   }
