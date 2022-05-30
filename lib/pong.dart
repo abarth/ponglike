@@ -53,12 +53,16 @@ class Paddle extends RectangleComponent
     add(RectangleHitbox());
   }
 
+  void constraintToBoard() {
+    final halfHeight = size.y / 2.0;
+    position.y = position.y.clamp(halfHeight, gameRef.size.y - halfHeight);
+  }
+
   @override
   void update(double dt) {
     super.update(dt);
     position += velocity * dt;
-    final halfHeight = size.y / 2.0;
-    position.y = position.y.clamp(halfHeight, gameRef.size.y - halfHeight);
+    constraintToBoard();
   }
 
   @override
@@ -98,7 +102,8 @@ class ComputerPaddle extends Paddle {
   @override
   void update(double dt) {
     super.update(dt);
-    position.y = gameRef.ball.position.y;
+    // position.y = gameRef.ball.position.y;
+    constraintToBoard();
   }
 }
 
@@ -124,7 +129,12 @@ class PongGame extends FlameGame
   late Ball ball;
 
   Vector2 initialBallVelocity() {
-    return Vector2(400.0, 0.0)..rotate(random.nextDouble() * 2 * pi);
+    final velocity = Vector2(0.0, 400.0)
+      ..rotate(random.nextDouble() * pi * 0.5 + 0.25 * pi);
+    if (random.nextBool()) {
+      velocity.rotate(pi);
+    }
+    return velocity;
   }
 
   @override
