@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flame/components.dart';
 import 'package:flame/game.dart';
 import 'package:flame/collisions.dart';
@@ -19,10 +21,15 @@ class Ball extends CircleComponent
   void update(double dt) {
     super.update(dt);
     position += velocity * dt;
-    if (position.x > gameRef.size.x) {
+    final rect = toRect();
+    if (rect.right > gameRef.size.x) {
       gameRef.score.scoreComputer();
-    } else if (position.x < 0.0) {
+      gameRef.nextPoint();
+    } else if (rect.left < 0.0) {
       gameRef.score.scorePlayer();
+      gameRef.nextPoint();
+    } else if (rect.bottom > gameRef.size.y || rect.top < 0) {
+      velocity.y = -velocity.y;
     }
   }
 
@@ -32,7 +39,7 @@ class Ball extends CircleComponent
     PositionComponent other,
   ) {
     super.onCollisionStart(intersectionPoints, other);
-    velocity.negate();
+    velocity.x = -velocity.x;
   }
 }
 
@@ -113,12 +120,17 @@ class PongScore extends ChangeNotifier {
 class PongGame extends FlameGame
     with HasCollisionDetection, HasKeyboardHandlerComponents {
   final score = PongScore();
+  final random = Random();
   late Ball ball;
+
+  Vector2 initialBallVelocity() {
+    return Vector2(400.0, 0.0)..rotate(random.nextDouble() * 2 * pi);
+  }
 
   @override
   Future<void> onLoad() async {
     ball = Ball()
-      ..velocity = Vector2(300.0, 200.0)
+      ..velocity = initialBallVelocity()
       ..position = size / 2
       ..width = 50
       ..height = 50
@@ -136,6 +148,12 @@ class PongGame extends FlameGame
         ..height = size.y / 2.0
         ..anchor = Anchor.centerLeft,
     ]);
+  }
+
+  void nextPoint() {
+    ball
+      ..velocity = initialBallVelocity()
+      ..position = size / 2;
   }
 }
 
